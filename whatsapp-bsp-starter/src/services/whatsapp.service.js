@@ -45,13 +45,13 @@ export async function sendTemplateMessage(to, templateName, languageCode = "en_U
  * @param {string} templateName - Nombre de la plantilla a enviar.
  * @returns {Array} Un array con los resultados de cada envío.
  */
-export async function sendBulkTemplateMessage(recipients, templateName) {
+export async function sendBulkTemplateMessage(recipients, templateName, languageCode) {
     const results = [];
     
     // Usamos Promise.all para enviar los mensajes en paralelo y más rápido
     const sendPromises = recipients.map(recipient => {
         // En este ejemplo, solo enviamos en español ('es')
-        return sendTemplateMessage(recipient, templateName, 'es')
+        return sendTemplateMessage(recipient, templateName, languageCode)
             .then(result => results.push(result))
             .catch(error => {
                 console.error(`Fallo crítico al enviar a ${recipient}`, error);

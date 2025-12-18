@@ -3,14 +3,14 @@ import { sendBulkTemplateMessage } from '../services/whatsapp.service.js';
 // POST /api/bulk-send
 export const bulkSend = async (req, res) => {
     try {
-        const { templateName, recipients } = req.body;
+        const { templateName, recipients, language } = req.body;
         
         if (!templateName || !recipients || !Array.isArray(recipients) || recipients.length === 0) {
             return res.status(400).json({ error: "Datos de envío masivo incompletos o inválidos." });
         }
 
         // Llamar al servicio para realizar el envío
-        const results = await sendBulkTemplateMessage(recipients, templateName);
+        const results = await sendBulkTemplateMessage(recipients, templateName, language);
 
         // Contar éxitos y fallos
         const successCount = results.filter(r => r.success).length;
