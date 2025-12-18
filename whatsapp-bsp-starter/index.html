@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Plantillas WhatsApp BSP</title>
+    <link rel="stylesheet" href="/style.css">
+    <!-- <link rel="stylesheet" href="public/style.css"> -->
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <h2 style="color: white; text-align: center;">Gestor de WhatsApp API</h2>
+        <br>
+        <br>
+        <div class="tabs">
+            <button class="tab-button active" onclick="openTab(event, 'Visualizacion')">Plantillas
+                Existentes</button>
+            <button class="tab-button" onclick="openTab(event, 'Creacion')">Crear y Enviar Plantilla</button>
+            <button class="tab-button" onclick="openTab(event, 'EnvioMasivo')">Enviar Masivo</button>
+            <button class="tab-button" onclick="openTab(event, 'Configuracion')">Configuración</button>
+        </div>
+    </aside>
+
+    <div class="main-content">
+        <div class="container">
+            <div id="Visualizacion" class="tab-content" style="display: block;">
+                <h3>Plantillas Importadas de Meta</h3>
+                <button onclick="fetchTemplates()" class="submit-btn">Recargar Plantillas</button>
+                <p id="loading-status">Cargando...</p>
+                <div id="template-list">
+                </div>
+            </div>
+
+            <div id="Creacion" class="tab-content" style="display: none;">
+                <h3>Enviar Nueva Plantilla para Aprobación</h3>
+                <form id="template-form">
+                    <div class="form-group">
+                        <label for="name">Nombre (Solo minúsculas y sin espacios):</label>
+                        <input type="text" id="name" required placeholder="Ej: aviso_entrega_programada">
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Categoría:</label>
+                        <select id="category" required>
+                            <option value="UTILITY">Utilidad (Utility)</option>
+                            <option value="MARKETING">Marketing</option>
+                            <option value="AUTHENTICATION">Autenticación</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="language">Idioma (código ISO):</label>
+                        <input type="text" id="language" required value="es" placeholder="Ej: es, en_US">
+                    </div>
+
+                    <h3>Configuración de Encabezado (Opcional)</h3>
+                    <div class="form-group">
+                        <label for="header-type">Tipo de Encabezado:</label>
+                        <select id="header-type">
+                            <option value="NONE">Ninguno</option>
+                            <option value="TEXT">Texto</option>
+                            <option value="IMAGE">Imagen (Media)</option>
+                            <option value="VIDEO">Video (Media)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="header-content-group" style="display: none;">
+                        <label for="header-content">Contenido del Encabezado (Texto):</label>
+                        <input type="text" id="header-content" placeholder="Ej: ¡Hola {{1}}!">
+                        <small>Nota: Para Imagen/Video, solo se envía el tipo; la subida de media es más
+                            compleja.</small>
+                    </div>
+
+                    <h3>Cuerpo del Mensaje (Body)</h3>
+                    <div class="form-group">
+                        <label for="body">Cuerpo del Mensaje (Usa {{1}}, {{2}} para variables):</label>
+                        <textarea id="body" rows="4" required
+                            placeholder="Su pedido {{1}} ha sido enviado y llegará pronto."></textarea>
+                    </div>
+
+                    <h3>Muestras de Variables (Ejemplos)</h3>
+                    <div class="form-group">
+                        <label for="examples">Contenido de Ejemplo para variables:</label>
+                        <input type="text" id="examples"
+                            placeholder="Ej: Juan Pérez, 100USD, ID-123 (Separar por comas)">
+                        <small>Si usa {{1}}, {{2}}... debe proporcionar muestras de texto para cada una, separadas por
+                            coma.</small>
+                    </div>
+
+                    <h3>Pie de Página (Footer) - Opcional</h3>
+                    <div class="form-group">
+                        <label for="footer">Texto del Pie de Página:</label>
+                        <input type="text" id="footer" placeholder="Ej: Gracias por tu preferencia.">
+                        <small>Línea de texto pequeña que aparece debajo del cuerpo del mensaje.</small>
+                    </div>
+
+                    <h3>Configuración de Botones (Opcional)</h3>
+                    <div id="buttons-container">
+                    </div>
+                    <button type="button" id="add-button" class="secondary-button">Añadir Botón</button>
+
+                    <div class="form-actions">
+                        <button type="submit" class="send-button">Enviar a Meta para Aprobación</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="EnvioMasivo" class="tab-content" style="display:none;">
+                <h2>Enviar Mensajes Masivos</h2>
+                <p>Introduce la plantilla a enviar y la lista de números de teléfono (un número por línea).</p>
+
+                <form id="bulk-send-form">
+                    <div class="form-group">
+                        <label for="bulk-template-name">Nombre de la Plantilla:</label>
+                        <input type="text" id="bulk-template-name" required placeholder="Ej: hello_world">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="recipient-list">Lista de Destinatarios (un número con código de país por
+                            línea):</label>
+                        <textarea id="recipient-list" rows="8" required
+                            placeholder="57310xxxxxxx, 57311xxxxxxx, 57312xxxxxxx"></textarea>
+                        <small>Asegúrate de incluir el código de país (ej. 57 para Colombia) sin el signo '+'.</small>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Iniciar Envío Masivo</button>
+                </form>
+
+                <div id="bulk-status" class="status-box"></div>
+                <div id="bulk-results" class="status-box results-box"></div>
+            </div>
+
+            <div id="Configuracion" class="tab-content" style="display: none;">
+                <h3>Credenciales Clave (Solo Lectura)</h3>
+                <p><strong>Phone Number ID:</strong> <span id="phone-id">Cargando...</span></p>
+                <p><strong>WhatsApp Business Account ID:</strong> <span id="waba-id">Cargando...</span></p>
+                <p class="status-PENDING" style="padding: 10px;">⚠️ NOTA: El Token de Acceso se almacena en el Backend
+                    por
+                    seguridad y no se muestra aquí.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="/script.js"></script>
+
+</body>
+
+</html>

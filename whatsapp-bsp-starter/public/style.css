@@ -1,0 +1,128 @@
+/* CSS BÁSICO PARA LA INTERFAZ */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7f6;
+    /* margin: 20px; */
+}
+
+.main-content {
+    width: auto;
+    height: auto;
+    margin-left: 220px;
+    padding-left: 30px;
+}
+
+.container {
+    width: auto;
+    height: auto;
+    /* margin: auto; */
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar {
+    width: 220px;
+    height: 100vh;
+    background: #1f2937;
+    padding: 20px;
+    position: fixed;
+    left: 0;
+    top: 0;
+}
+
+.tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.tab-button {
+    background: transparent;
+    border: none;
+    color: #d1d5db;
+    text-align: left;
+    padding: 12px 15px;
+    font-size: 15px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.tab-button:hover {
+    background: #374151;
+    color: white;
+}
+
+.tab-button.active {
+    background: #075e54;
+    color: white;
+}
+
+/* Estilos específicos para las plantillas */
+#template-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.template-card {
+    border: 1px solid #ccc;
+    padding: 15px;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.template-card h3 {
+    margin-top: 0;
+    color: #075e54;
+}
+
+.status-badge {
+    padding: 5px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.8em;
+}
+
+.status-APPROVED {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-PENDING {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-REJECTED {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Estilos para el formulario de creación */
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.submit-btn {
+    background-color: #075e54;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
