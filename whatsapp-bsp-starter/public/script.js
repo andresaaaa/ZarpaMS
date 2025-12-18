@@ -1,4 +1,7 @@
 // LÓGICA PARA EL CAMBIO DE PESTAÑAS (la dejamos igual)
+
+let allTemplates = []; // Variable global para almacenar las plantillas
+
 function openTab(evt, tabName) {
     var i, tabcontent, tablinks;
 
@@ -14,14 +17,13 @@ function openTab(evt, tabName) {
 
     document.getElementById(tabName).style.display = "block";
 
-    // 🚨 CORRECCIÓN: Solo intenta leer currentTarget si evt existe
+    // 🚨 CAMBIO AQUÍ: Solo actúa si evt no es null y tiene currentTarget
     if (evt && evt.currentTarget) {
         evt.currentTarget.className += " active";
-    }
-
-    // Si abrimos la pestaña de visualización, la recargamos
-    if (tabName === 'Visualizacion') {
-        fetchTemplates();
+    } else {
+        // Opcional: Si evt es null, busca el botón manualmente para activarlo
+        const btn = document.querySelector(`button[onclick*="${tabName}"]`);
+        if (btn) btn.classList.add("active");
     }
 }
 
@@ -58,11 +60,13 @@ async function fetchTemplates() {
         const response = await fetch('/api/templates');
         const templates = await response.json();
 
+        // if (response.ok) {
+        //     if (templates.length === 0) {
+        //         statusElement.innerText = 'No se encontraron plantillas. Crea una nueva en la pestaña "Crear".';
+        //         return;
+        //     }
         if (response.ok) {
-            if (templates.length === 0) {
-                statusElement.innerText = 'No se encontraron plantillas. Crea una nueva en la pestaña "Crear".';
-                return;
-            }
+            allTemplates = templates; // 🚨 GUARDAMOS LAS PLANTILLAS AQUÍ
 
             templates.forEach(template => {
                 // Mapeamos el estado al CSS (ej. PENDING, APPROVED, REJECTED)
@@ -271,11 +275,13 @@ document.getElementById('template-form').addEventListener('submit', async functi
 document.getElementById('bulk-send-form').addEventListener('submit', async function (e) {
     e.preventDefault();
 
+    const submitBtn = this.querySelector('button[type="submit"]');
     const templateName = document.getElementById('bulk-template-name').value;
+    const language = document.getElementById('bulk-language').value; //  Capturamos el idioma
     const recipientListText = document.getElementById('recipient-list').value;
     const statusElement = document.getElementById('bulk-status');
     const resultsElement = document.getElementById('bulk-results');
-    const submitBtn = this.querySelector('button[type="submit"]');
+
 
     // 1. Limpieza de datos
     // Bloque CORREGIDO (Acepta comas, puntos y comas, y saltos de línea)
@@ -294,13 +300,19 @@ document.getElementById('bulk-send-form').addEventListener('submit', async funct
         return;
     }
 
+
     // 2. Estado de Envío
     resultsElement.innerHTML = ''; // Limpiar resultados anteriores
     statusElement.innerHTML = `<span class="status-pending">🚀 Iniciando envío a ${recipients.length} destinatarios...</span>`;
     submitBtn.disabled = true;
     submitBtn.innerText = 'Enviando...';
 
-    const data = { templateName, recipients };
+    // Actualizamos el objeto 'data' para incluir el idioma
+    const data = {
+        templateName,
+        language, // 🚨 Enviamos el idioma al Backend
+        recipients
+    };
 
     // 3. Petición al Backend
     try {
@@ -308,7 +320,7 @@ document.getElementById('bulk-send-form').addEventListener('submit', async funct
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
-        });
+        })
         const result = await response.json();
 
         // 4. Manejo de Respuesta
@@ -334,6 +346,35 @@ document.getElementById('bulk-send-form').addEventListener('submit', async funct
     } finally {
         submitBtn.disabled = false;
         submitBtn.innerText = 'Iniciar Envío Masivo';
+    }
+});
+
+// Llena el datalist con los nombres de las plantillas cargadas
+function updateTemplateSuggestions() {
+    const datalist = document.getElementById('template-suggestions');
+    datalist.innerHTML = '';
+
+    allTemplates.forEach(temp => {
+        const option = document.createElement('option');
+        option.value = temp.name;
+        datalist.appendChild(option);
+    });
+}
+
+// 🚨 DETECTAR EL CAMBIO Y EXTRAER EL IDIOMA
+document.getElementById('bulk-template-name').addEventListener('input', function (e) {
+    const selectedName = e.target.value;
+    const languageInput = document.getElementById('bulk-language');
+
+    // Buscamos la plantilla en nuestra variable global
+    const found = allTemplates.find(t => t.name === selectedName);
+
+    if (found) {
+        languageInput.value = found.language; // 🚨 ASIGNA EL IDIOMA AUTOMÁTICAMENTE
+        languageInput.classList.add('status-approved'); // Feedback visual
+    } else {
+        languageInput.value = '';
+        languageInput.classList.remove('status-approved');
     }
 });
 

@@ -112,15 +112,21 @@
                 <form id="bulk-send-form">
                     <div class="form-group">
                         <label for="bulk-template-name">Nombre de la Plantilla:</label>
-                        <input type="text" id="bulk-template-name" required placeholder="Ej: hello_world">
+                        <input type="text" id="bulk-template-name" list="template-suggestions" required
+                            placeholder="Escribe para buscar...">
+                        <datalist id="template-suggestions"></datalist>
                     </div>
 
                     <div class="form-group">
-                        <label for="recipient-list">Lista de Destinatarios (un número con código de país por
-                            línea):</label>
-                        <textarea id="recipient-list" rows="8" required
-                            placeholder="57310xxxxxxx, 57311xxxxxxx, 57312xxxxxxx"></textarea>
-                        <small>Asegúrate de incluir el código de país (ej. 57 para Colombia) sin el signo '+'.</small>
+                        <label for="bulk-language">Idioma Detectado:</label>
+                        <input type="text" id="bulk-language" readonly style="background-color: #eee;"
+                            placeholder="Se detectará automáticamente">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="recipient-list">Lista de Destinatarios:</label>
+                        <textarea id="recipient-list" rows="5" required
+                            placeholder="573001234567, 573007654321..."></textarea>
                     </div>
 
                     <button type="submit" class="submit-btn">Iniciar Envío Masivo</button>

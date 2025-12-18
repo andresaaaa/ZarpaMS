@@ -29,7 +29,7 @@ export async function createTemplate({ name, category, language, body, footer, h
         throw new Error("WABA_ID o ACCESS_TOKEN no están configurados correctamente en .env");
     }
     const url = `https://graph.facebook.com/v22.0/${WABA_ID}/message_templates`;
-    
+
     const components = [];
 
     // 1. Añadir el componente HEADER (si existe) (SIN CAMBIOS)
@@ -37,7 +37,7 @@ export async function createTemplate({ name, category, language, body, footer, h
 
     // 2. Añadir el componente BODY (OBLIGATORIO)
     const bodyComponent = { type: "BODY", text: body };
-    
+
     // 🚨 AGREGAR MUESTRAS DE VARIABLES (si existen y si el body tiene variables)
     if (examples && Array.isArray(examples) && examples.length > 0) {
         bodyComponent.example = {
@@ -59,7 +59,7 @@ export async function createTemplate({ name, category, language, body, footer, h
         language: language,
         components: components
     };
-    
+
     const response = await axios.post(url, templateData, {
         headers: {
             'Authorization': `Bearer ${ACCESS_TOKEN}`,
@@ -70,11 +70,11 @@ export async function createTemplate({ name, category, language, body, footer, h
 }
 
 // Función para enviar un mensaje basado en plantilla
-export async function sendTemplateMessage(phoneNumber, templateName, languageCode = 'es') {
+export async function sendTemplateMessage(phoneNumber, templateName, languageCode) {
+
     if (!ACCESS_TOKEN || !process.env.PHONE_NUMBER_ID) {
         throw new Error("Configuración de envío incompleta en .env");
     }
-
     const url = `https://graph.facebook.com/v22.0/${process.env.PHONE_NUMBER_ID}/messages`;
 
     const data = {
@@ -84,17 +84,14 @@ export async function sendTemplateMessage(phoneNumber, templateName, languageCod
         template: {
             name: templateName,
             language: {
-                code: languageCode // 🚨 Aquí usamos el parámetro dinámico
+                // 🚨 USAR EL IDIOMA DINÁMICO AQUÍ
+                code: languageCode || 'es' // Si por alguna razón llega vacío, usa 'es'
             }
         }
     };
 
     const response = await axios.post(url, data, {
-        headers: {
-            'Authorization': `Bearer ${ACCESS_TOKEN}`,
-            'Content-Type': 'application/json'
-        }
+        headers: { 'Authorization': `Bearer ${ACCESS_TOKEN}` }
     });
-
     return response.data;
 }
